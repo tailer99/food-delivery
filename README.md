@@ -308,6 +308,80 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
 }
 ```
 
+## Liveness / Readiness 설정
+order 서비스 deployment.xml 에 Liveness, Readiness를 httpGet 방식으로 설정함
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      containers:
+        - name: order
+          image: 496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/team05-order:v1
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5
+
+```
+
+## Self-Healing
+
+order pod를 강제종료처리시, liveness에 의해 자동으로 다른 pod가 생성되는 모습
+![image](https://user-images.githubusercontent.com/452079/108833009-974e2500-760f-11eb-99c2-0e4b127f245d.png)
+
+생성된 order pod의 상세정보
+```
+Containers:
+  order:
+    Container ID:   docker://0cafff76bed772615cfe8b74845e50f3979fec7fe5da5a0587b7ae2b4fe79b4e
+    Image:          496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/team05-order:v1
+    Image ID:       docker-pullable://496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/team05-order@sha256:8b09186218c6b2517e8829cdf48decfd105d10831c2870677b29f50adfcbc61a
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Tue, 23 Feb 2021 19:38:50 +0900
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:8080/actuator/health delay=120s timeout=2s period=5s #success=1 #failure=5
+    Readiness:      http-get http://:8080/actuator/health delay=10s timeout=2s period=5s #success=1 #failure=10
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-c55nd (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True
+```
+
 ## 폴리글랏 퍼시스턴스
 
 앱프런트 (app) 는 H2 대신 HSQL DB를 사용하기로 하였다. 이를 위해 Mypage 서비스의 pom.xml 에는 hsql dependancy를 추가하였다. 그 외 별다른 작업없이 기존의 Entity Pattern 과 Repository Pattern 적용과 데이터베이스 제품의 설정 (application.yml) 만으로 HSQL 에 부착시켰다
