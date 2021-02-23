@@ -354,6 +354,9 @@ spec:
 ## Self-Healing
 
 order pod를 강제종료처리시, liveness에 의해 자동으로 다른 pod가 생성되는 모습
+```
+kubectl delete pod order-cb5d6b495-knfrp
+```
 ![image](https://user-images.githubusercontent.com/452079/108833009-974e2500-760f-11eb-99c2-0e4b127f245d.png)
 
 생성된 order pod의 상세정보
