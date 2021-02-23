@@ -693,9 +693,19 @@ pod/delivery-69d48b98f7-sp52p   1/1     Running   0          5m4s
 
 NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/delivery   7/10    10           7           5m4s
-:
 ```
 
+- 다시 어느정도 시간이 지나면 부하가 줄어들면서 다시 스케일 인이 벌어지는것을 확인할 수 있다.
+```
+NAME                            READY   STATUS    RESTARTS   AGE
+pod/delivery-69d48b98f7-4k7lx   1/1     Running   0          13m
+pod/delivery-69d48b98f7-sp52p   1/1     Running   0          15m
+
+...(중략)...
+
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/delivery   2/2     2            2           15m  
+```
 
 ## 무정지 재배포
 
