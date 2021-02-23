@@ -153,6 +153,8 @@ http PATCH localhost:8088/orders/2 status=cancel
 ```
 
 ## API-Gateway
+
+API Gateway를 통하여 동일 진입점으로 진입하여 각 마이크로 서비스를 접근할 수 있다.
 ```
 spring:
   profiles: default
@@ -175,6 +177,16 @@ spring:
           uri: http://localhost:8084
           predicates:
             - Path=/menus/** 
+```
+
+외부에서 접근을 위하여 Gateway의 Service는 LoadBalancer Type으로 생성했다.
+```
+kubectl expose deploy gateway  --type=LoadBalancer --port=8080
+```
+```
+NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP                                                                    PORT(S)          AGE
+service/gateway      LoadBalancer   10.100.208.95   hidden.ap-northeast-2.elb.amazonaws.com                                        8080:30302/TCP   2s
+service/kubernetes   ClusterIP      10.100.0.1      <none>                                                                         443/TCP          108m
 ```
 
 ## 폴리글랏 퍼시스턴스
