@@ -252,7 +252,7 @@ service/gateway      LoadBalancer   10.100.208.95   censored.ap-northeast-2.elb.
 service/kubernetes   ClusterIP      10.100.0.1      <none>                                      443/TCP          108m
 ```
 
-## CQRS / Meterialized Vie
+## CQRS / Meterialized View
 mypage를 구현하여 order, menu, delivery 서비스의 데이터를 DB Join없이 조회할 수 있다.
 ```
 # mypage 확인
