@@ -412,7 +412,6 @@ transfer-encoding: chunked
 
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 AWS를 사용하였으며, kubectl을 통해 수작업으로 배포하였다.
 
-
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
 
 * 서킷 브레이킹 프레임워크의 선택: Spring FeignClient + Hystrix 옵션을 사용하여 구현함
@@ -587,25 +586,22 @@ Shortest transaction:	        0.00
 ### 오토스케일 아웃
 앞서 CB 는 시스템을 안정되게 운영할 수 있게 해줬지만 사용자의 요청을 100% 받아들여주지 못했기 때문에 이에 대한 보완책으로 자동화된 확장 기능을 적용하고자 한다. 
 
-
 - 결제서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 15프로를 넘어서면 replica 를 10개까지 늘려준다:
 ```
-kubectl autoscale deploy pay --min=1 --max=10 --cpu-percent=15
+kubectl autoscale deploy delivery --min=1 --max=10 --cpu-percent=15
 ```
 - CB 에서 했던 방식대로 워크로드를 2분 동안 걸어준다.
 ```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
+siege -c100 -t120S -r10 --content-type "application/json" 'http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders POST {"menuId":"1"}'
 ```
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다:
 ```
-kubectl get deploy pay -w
+kubectl get deploy delivery -w
 ```
 - 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
 ```
-NAME    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-pay     1         1         1            1           17s
-pay     1         2         1            1           45s
-pay     1         4         1            1           1m
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/delivery   4/10    10           4           5m39s
 :
 ```
 - siege 의 로그를 보아도 전체적인 성공률이 높아진 것을 확인 할 수 있다. 
