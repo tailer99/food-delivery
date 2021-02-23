@@ -10,6 +10,7 @@
   - [분석/설계](#분석설계)
   - [구현:](#구현-)
     - [DDD 의 적용](#ddd-의-적용)
+    - [API Gateway](#API-Gateway)
     - [폴리글랏 퍼시스턴스](#폴리글랏-퍼시스턴스)
     - [폴리글랏 프로그래밍](#폴리글랏-프로그래밍)
     - [동기식 호출 과 Fallback 처리](#동기식-호출-과-Fallback-처리)
@@ -151,6 +152,30 @@ http PATCH localhost:8088/deliveries/1 status=complete
 http PATCH localhost:8088/orders/2 status=cancel
 ```
 
+## API-Gateway
+'''
+spring:
+  profiles: default
+  cloud:
+    gateway:
+      routes:
+        - id: order
+          uri: http://localhost:8081
+          predicates:
+            - Path=/orders/**
+        - id: delivery
+          uri: http://localhost:8082
+          predicates:
+            - Path=/deliveries/** 
+        - id: mypage
+          uri: http://localhost:8083
+          predicates:
+            - Path= /mypages/**
+        - id: menu
+          uri: http://localhost:8084
+          predicates:
+            - Path=/menus/** 
+'''
 
 ## 폴리글랏 퍼시스턴스
 
@@ -207,17 +232,13 @@ hystrix:
 
 ```
 
-- 피호출 서비스(결제:pay) 의 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게
+- 피호출 서비스(배달:delivery) 의 임의 부하 처리 - 800 밀리에서 증감 220 밀리 정도 왔다갔다 하게
 ```
-# (pay) 결제이력.java (Entity)
-
+    # (order) 주문
     @PrePersist
-    public void onPrePersist(){  //결제이력을 저장한 후 적당한 시간 끌기
-
-        ...
-        
+    public void onPrePersist(){  // 배달을 처리한 뒤 임의부하
         try {
-            Thread.currentThread().sleep((long) (400 + Math.random() * 220));
+            Thread.currentThread().sleep((long) (800 + Math.random() * 220));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
