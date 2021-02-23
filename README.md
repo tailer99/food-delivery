@@ -2,23 +2,6 @@
 
 5팀 FINAL ASSESSMENT
 
-# Table of contents
-
-- [예제 - 음식배달](#---)
-  - [서비스 시나리오](#서비스-시나리오)
-  - [분석/설계](#분석설계)
-  - [구현:](#구현-)
-    - [DDD 의 적용](#ddd-의-적용)
-    - [API Gateway](#API-Gateway)
-    - [폴리글랏 퍼시스턴스](#폴리글랏-퍼시스턴스)
-    - [동기식 호출 과 Fallback 처리](#동기식-호출-과-Fallback-처리)
-    - [비동기식 호출 과 Eventual Consistency](#비동기식-호출-과-Eventual-Consistency)
-  - [운영](#운영)
-    - [CI/CD 설정](#cicd설정)
-    - [동기식 호출 / 서킷 브레이킹 / 장애격리](#동기식-호출-서킷-브레이킹-장애격리)
-    - [오토스케일 아웃](#오토스케일-아웃)
-    - [무정지 재배포](#무정지-재배포)
-
 # 서비스 시나리오
 
 기능적 요구사항
@@ -269,7 +252,7 @@ service/gateway      LoadBalancer   10.100.208.95   censored.ap-northeast-2.elb.
 service/kubernetes   ClusterIP      10.100.0.1      <none>                                      443/TCP          108m
 ```
 
-## CQRS / Meterialized Viem
+## CQRS / Meterialized Vie
 mypage를 구현하여 order, menu, delivery 서비스의 데이터를 DB Join없이 조회할 수 있다.
 ```
 # mypage 확인
