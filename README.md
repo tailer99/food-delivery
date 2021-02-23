@@ -103,7 +103,7 @@
 # 분석/설계
 
 ## Event Storming 결과
-https://user-images.githubusercontent.com/452079/108806757-eda66e00-75e5-11eb-920f-6dc60e76d44a.PNG
+![이미지](https://user-images.githubusercontent.com/452079/108806757-eda66e00-75e5-11eb-920f-6dc60e76d44a.PNG)
 
 ### 비기능 요구사항에 대한 검증
 
