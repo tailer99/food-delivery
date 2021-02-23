@@ -75,9 +75,52 @@
 # menu 서비스의 메뉴등록처리
 http localhost:8088/menus menuNm=Gimbab
 http localhost:8088/menus menuNm=Juice
-
+```
+```
 # menu 목록 확인
 http localhost:8088/menus
+
+{
+  "_embedded" : {
+    "menus" : [ {
+      "menuNm" : "Gimbab",
+      "_links" : {
+        "self" : {
+          "href" : "http://menu:8080/menus/1"
+        },
+        "menu" : {
+          "href" : "http://menu:8080/menus/1"
+        }
+      }
+    }, {
+      "menuNm" : "Juice",
+      "_links" : {
+        "self" : {
+          "href" : "http://menu:8080/menus/2"
+        },
+        "menu" : {
+          "href" : "http://menu:8080/menus/2"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://menu:8080/menus{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://menu:8080/profile/menus"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 2,
+    "totalPages" : 1,
+    "number" : 0
+  }
+}
+```
 
 # order 서비스의 주문처리
 http localhost:8088/orders menuId=1 menuNm=Gimbab qty=1
