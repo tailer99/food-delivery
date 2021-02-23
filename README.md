@@ -231,6 +231,46 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
   }
 }
 ```
+
+## API-Gateway
+
+API Gateway를 통하여 동일 진입점으로 진입하여 각 마이크로 서비스를 접근할 수 있다.
+```
+spring:
+  profiles: default
+  cloud:
+    gateway:
+      routes:
+        - id: order
+          uri: http://localhost:8081
+          predicates:
+            - Path=/orders/**
+        - id: delivery
+          uri: http://localhost:8082
+          predicates:
+            - Path=/deliveries/** 
+        - id: mypage
+          uri: http://localhost:8083
+          predicates:
+            - Path= /mypages/**
+        - id: menu
+          uri: http://localhost:8084
+          predicates:
+            - Path=/menus/** 
+```
+
+외부에서 접근을 위하여 Gateway의 Service는 LoadBalancer Type으로 생성했다.
+```
+kubectl expose deploy gateway  --type=LoadBalancer --port=8080
+```
+```
+NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP                                 PORT(S)          AGE
+service/gateway      LoadBalancer   10.100.208.95   censored.ap-northeast-2.elb.amazonaws.com   8080:30302/TCP   2s
+service/kubernetes   ClusterIP      10.100.0.1      <none>                                      443/TCP          108m
+```
+
+## CQRS / Meterialized Viem
+mypage를 구현하여 order, menu, delivery 서비스의 데이터를 DB Join없이 조회할 수 있다.
 ```
 # mypage 확인
 http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/mypages
@@ -283,43 +323,6 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
     }
   }
 }
-```
-
-## API-Gateway
-
-API Gateway를 통하여 동일 진입점으로 진입하여 각 마이크로 서비스를 접근할 수 있다.
-```
-spring:
-  profiles: default
-  cloud:
-    gateway:
-      routes:
-        - id: order
-          uri: http://localhost:8081
-          predicates:
-            - Path=/orders/**
-        - id: delivery
-          uri: http://localhost:8082
-          predicates:
-            - Path=/deliveries/** 
-        - id: mypage
-          uri: http://localhost:8083
-          predicates:
-            - Path= /mypages/**
-        - id: menu
-          uri: http://localhost:8084
-          predicates:
-            - Path=/menus/** 
-```
-
-외부에서 접근을 위하여 Gateway의 Service는 LoadBalancer Type으로 생성했다.
-```
-kubectl expose deploy gateway  --type=LoadBalancer --port=8080
-```
-```
-NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP                                 PORT(S)          AGE
-service/gateway      LoadBalancer   10.100.208.95   censored.ap-northeast-2.elb.amazonaws.com   8080:30302/TCP   2s
-service/kubernetes   ClusterIP      10.100.0.1      <none>                                      443/TCP          108m
 ```
 
 ## 폴리글랏 퍼시스턴스
