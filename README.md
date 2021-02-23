@@ -105,6 +105,9 @@
 ## Event Storming 결과
 ![이미지](https://user-images.githubusercontent.com/452079/108806757-eda66e00-75e5-11eb-920f-6dc60e76d44a.PNG)
 
+## 헥사고날 아키텍처 다이어그램 도출
+![hexa](https://user-images.githubusercontent.com/452079/108806765-f39c4f00-75e5-11eb-8eb8-caae37dedf31.PNG)
+
 ### 비기능 요구사항에 대한 검증
 
     - 마이크로 서비스를 넘나드는 시나리오에 대한 트랜잭션 처리
@@ -153,6 +156,8 @@ http PATCH localhost:8088/orders/2 status=cancel
 
 앱프런트 (app) 는 서비스 특성상 많은 사용자의 유입과 상품 정보의 다양한 콘텐츠를 저장해야 하는 특징으로 인해 H2 보다는 Document DB / NoSQL 계열의 데이터베이스인 HSQL 을 사용하기로 하였다. 이를 위해 Mypage 서비스의 pom.xml 에는 hsql dependancy를 추가하였다. 그 외 별다른 작업없이 기존의 Entity Pattern 과 Repository Pattern 적용과 데이터베이스 제품의 설정 (application.yml) 만으로 HSQL 에 부착시켰다
 
+![hsqldb](https://user-images.githubusercontent.com/452079/108806767-f434e580-75e5-11eb-9d2e-0007e3ab06a5.PNG)
+
 
 ## 동기식 호출 과 Fallback 처리
 
@@ -178,7 +183,6 @@ http PATCH localhost:8088/orders/2 status=cancel
 # 운영
 
 ## CI/CD 설정
-
 
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 AWS를 사용하였으며, kubectl을 통해 수작업으로 배포하였다.
 
