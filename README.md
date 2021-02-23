@@ -489,6 +489,44 @@ transfer-encoding: chunked
 
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 AWS를 사용하였으며, kubectl을 통해 수작업으로 배포하였다.
 
+## Persistence Volume / Persistence Volume Claim
+```
+root@labs--1203739448:/home/project/baedal/myeats/order# kubectl exec -it menu-68b9ffcc8-ndrgg -- /bin/sh
+/ # df -k
+Filesystem           1K-blocks      Used Available Use% Mounted on
+overlay               83873772   5671164  78202608   7% /
+tmpfs                    65536         0     65536   0% /dev
+tmpfs                  1988932         0   1988932   0% /sys/fs/cgroup
+/dev/nvme0n1p1        83873772   5671164  78202608   7% /dev/termination-log
+127.0.0.1:/          9007199254739968         0 9007199254739968   0% /mnt/aws
+/dev/nvme0n1p1        83873772   5671164  78202608   7% /etc/resolv.conf
+/dev/nvme0n1p1        83873772   5671164  78202608   7% /etc/hostname
+/dev/nvme0n1p1        83873772   5671164  78202608   7% /etc/hosts
+shm                      65536         0     65536   0% /dev/shm
+tmpfs                  1988932        12   1988920   0% /run/secrets/kubernetes.io/serviceaccount
+tmpfs                  1988932         0   1988932   0% /proc/acpi
+tmpfs                    65536         0     65536   0% /proc/kcore
+tmpfs                    65536         0     65536   0% /proc/keys
+tmpfs                    65536         0     65536   0% /proc/latency_stats
+tmpfs                    65536         0     65536   0% /proc/timer_list
+tmpfs                    65536         0     65536   0% /proc/sched_debug
+tmpfs                  1988932         0   1988932   0% /sys/firmware
+/ # cd /mnt/aws
+/mnt/aws # ls
+out1.txt  out2.txt
+/mnt/aws # cat out1.txt
+Tue Feb 23 00:43:06 UTC 2021
+Tue Feb 23 00:43:11 UTC 2021
+Tue Feb 23 00:43:16 UTC 2021
+Tue Feb 23 00:43:21 UTC 2021
+Tue Feb 23 00:43:26 UTC 2021
+Tue Feb 23 00:43:31 UTC 2021
+Tue Feb 23 00:43:36 UTC 2021
+Tue Feb 23 00:43:41 UTC 2021
+Tue Feb 23 00:43:46 UTC 2021
+(...)
+```
+
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
 
 * 서킷 브레이킹 프레임워크의 선택: Spring FeignClient + Hystrix 옵션을 사용하여 구현함
