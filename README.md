@@ -339,6 +339,74 @@ service/kubernetes   ClusterIP      10.100.0.1      <none>                      
 - 배달서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 - 주문취소을 처리하기 직전(@PreUpdate) 배달취소를 요청하도록 처리
 - 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 배달 시스템이 장애가 나면 주문취소도 못받는다.
+```
+root@labs--1203739448:/home/project/baedal/myeats/mypage# kubectl delete svc,deploy delivery
+service "delivery" deleted
+deployment.apps "delivery" deleted
+
+root@labs--1203739448:/home/project/baedal/myeats/mypage# http PATCH http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders/3 status=cancel
+HTTP/1.1 500 Internal Server Error
+Content-Type: application/json;charset=UTF-8
+Date: Tue, 23 Feb 2021 08:53:11 GMT
+transfer-encoding: chunked
+
+{
+    "error": "Internal Server Error", 
+    "message": "Could not commit JPA transaction; nested exception is javax.persistence.RollbackException: Error while committing the transaction", 
+    "path": "/orders/3", 
+    "status": 500, 
+    "timestamp": "2021-02-23T08:53:11.602+0000"
+}
+```
+- 배달 시스템이 정상화될 경우 주문취소가 정상적으로 가능하다.
+```
+root@labs--1203739448:/home/project/baedal/myeats/mypage# http http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders menuId=1 menuNm=Gimbab qty=1
+HTTP/1.1 201 Created
+Content-Type: application/json;charset=UTF-8
+Date: Tue, 23 Feb 2021 08:56:35 GMT
+Location: http://order:8080/orders/4
+transfer-encoding: chunked
+
+{
+    "_links": {
+        "order": {
+            "href": "http://order:8080/orders/4"
+        }, 
+        "self": {
+            "href": "http://order:8080/orders/4"
+        }
+    }, 
+    "deliveryId": null, 
+    "deliveryStatus": null, 
+    "menuId": 1, 
+    "menuNm": "Gimbab", 
+    "qty": 1, 
+    "status": "ordered"
+}
+
+root@labs--1203739448:/home/project/baedal/myeats/mypage# http PATCH http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders/1 status=cancel
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Date: Tue, 23 Feb 2021 08:56:59 GMT
+transfer-encoding: chunked
+
+{
+    "_links": {
+        "order": {
+            "href": "http://order:8080/orders/1"
+        }, 
+        "self": {
+            "href": "http://order:8080/orders/1"
+        }
+    }, 
+    "deliveryId": 1, 
+    "deliveryStatus": "cancelled", 
+    "menuId": 1, 
+    "menuNm": "Juice", 
+    "qty": 1, 
+    "status": "cancel"
+}
+```
 - 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
 
 
