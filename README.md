@@ -153,7 +153,7 @@ http PATCH localhost:8088/orders/2 status=cancel
 ```
 
 ## API-Gateway
-'''
+```
 spring:
   profiles: default
   cloud:
@@ -175,7 +175,7 @@ spring:
           uri: http://localhost:8084
           predicates:
             - Path=/menus/** 
-'''
+```
 
 ## 폴리글랏 퍼시스턴스
 
