@@ -677,20 +677,23 @@ kubectl get deploy delivery -w
 ```
 - 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
 ```
+NAME                            READY   STATUS    RESTARTS   AGE
+pod/delivery-69d48b98f7-4k7lx   1/1     Running   0          3m9s 
+pod/delivery-69d48b98f7-89hfs   1/1     Running   0          3m8s
+pod/delivery-69d48b98f7-8c86m   0/1     Pending   0          2m38s
+pod/delivery-69d48b98f7-bd5rx   0/1     Pending   0          2m53s
+pod/delivery-69d48b98f7-dl6v5   1/1     Running   0          2m53s
+pod/delivery-69d48b98f7-drrr7   1/1     Running   0          3m8s
+pod/delivery-69d48b98f7-fwvjl   0/1     Pending   0          2m38s
+pod/delivery-69d48b98f7-gnq5v   1/1     Running   0          2m53s
+pod/delivery-69d48b98f7-r4jc5   1/1     Running   0          2m53s
+pod/delivery-69d48b98f7-sp52p   1/1     Running   0          5m4s
+
+(...)
+
 NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/delivery   4/10    10           4           5m39s
+deployment.apps/delivery   7/10    10           7           5m4s
 :
-```
-- siege 의 로그를 보아도 전체적인 성공률이 높아진 것을 확인 할 수 있다. 
-```
-Transactions:		        5078 hits
-Availability:		       92.45 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
 ```
 
 
