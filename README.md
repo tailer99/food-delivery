@@ -73,12 +73,12 @@
 - 적용 후 REST API 의 테스트
 ```
 # menu 서비스의 메뉴등록처리
-http localhost:8088/menus menuNm=Gimbab
-http localhost:8088/menus menuNm=Juice
+http http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/menus menuNm=Gimbab
+http http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/menus menuNm=Juice
 ```
 ```
 # menu 목록 확인
-http localhost:8088/menus
+http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/menus
 
 {
   "_embedded" : {
@@ -122,19 +122,167 @@ http localhost:8088/menus
 }
 ```
 
+```
 # order 서비스의 주문처리
-http localhost:8088/orders menuId=1 menuNm=Gimbab qty=1
-http localhost:8088/orders menuId=2 menuNm=Juice qty=2
-
-# 주문 및 배달상태 확인
-http localhost:8088/orders
-http localhost:8088/deliveries
+http http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders menuId=1 menuNm=Gimbab qty=1
+http http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders menuId=2 menuNm=Juice qty=1
 
 # delivery 서비스의 배달처리
-http PATCH localhost:8088/deliveries/1 status=complete
+http PATCH http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/deliveries/2 status=complete
 
 # order 서비스의 취소처리
-http PATCH localhost:8088/orders/2 status=cancel
+http PATCH http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders/1 status=cancel
+
+# 주문 및 배달상태 확인
+http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders
+http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/deliveries
+
+{
+  "_embedded" : {
+    "orders" : [ {
+      "menuId" : 1,
+      "menuNm" : "Juice",
+      "qty" : 1,
+      "status" : "cancel",
+      "deliveryStatus" : "cancelled",
+      "deliveryId" : 1,
+      "_links" : {
+        "self" : {
+          "href" : "http://order:8080/orders/1"
+        },
+        "order" : {
+          "href" : "http://order:8080/orders/1"
+        }
+      }
+    }, {
+      "menuId" : 2,
+      "menuNm" : "Gimbab",
+      "qty" : 2,
+      "status" : "ordered",
+      "deliveryStatus" : "complete",
+      "deliveryId" : 2,
+      "_links" : {
+        "self" : {
+          "href" : "http://order:8080/orders/2"
+        },
+        "order" : {
+          "href" : "http://order:8080/orders/2"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://order:8080/orders{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://order:8080/profile/orders"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 2,
+    "totalPages" : 1,
+    "number" : 0
+  }
+}
+
+{
+  "_embedded" : {
+    "deliveries" : [ {
+      "orderId" : 1,
+      "status" : "cancelled",
+      "_links" : {
+        "self" : {
+          "href" : "http://delivery:8080/deliveries/1"
+        },
+        "delivery" : {
+          "href" : "http://delivery:8080/deliveries/1"
+        }
+      }
+    }, {
+      "orderId" : 2,
+      "status" : "complete",
+      "_links" : {
+        "self" : {
+          "href" : "http://delivery:8080/deliveries/2"
+        },
+        "delivery" : {
+          "href" : "http://delivery:8080/deliveries/2"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://delivery:8080/deliveries{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://delivery:8080/profile/deliveries"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 2,
+    "totalPages" : 1,
+    "number" : 0
+  }
+}
+```
+```
+# mypage 확인
+http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/mypages
+
+{
+  "_embedded" : {
+    "mypages" : [ {
+      "orderId" : 1,
+      "menuId" : 1,
+      "menuNm" : "Juice",
+      "deliveryId" : 1,
+      "qty" : 1,
+      "status" : "cancel",
+      "deliveryStatus" : "cancelled",
+      "_links" : {
+        "self" : {
+          "href" : "http://mypage:8080/mypages/1"
+        },
+        "mypage" : {
+          "href" : "http://mypage:8080/mypages/1"
+        }
+      }
+    }, {
+      "orderId" : 2,
+      "menuId" : 2,
+      "menuNm" : "Gimbab",
+      "deliveryId" : 2,
+      "qty" : 2,
+      "status" : "ordered",
+      "deliveryStatus" : "complete",
+      "_links" : {
+        "self" : {
+          "href" : "http://mypage:8080/mypages/2"
+        },
+        "mypage" : {
+          "href" : "http://mypage:8080/mypages/2"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://mypage:8080/mypages"
+    },
+    "profile" : {
+      "href" : "http://mypage:8080/profile/mypages"
+    },
+    "search" : {
+      "href" : "http://mypage:8080/mypages/search"
+    }
+  }
+}
 ```
 
 ## API-Gateway
