@@ -351,7 +351,7 @@ spec:
 
 ```
 
-## Self-Healing
+## Self-Healing (Liveness)
 
 order pod를 강제종료처리시, liveness에 의해 자동으로 다른 pod가 생성되는 모습
 ```
@@ -383,6 +383,21 @@ Conditions:
   Ready             True 
   ContainersReady   True 
   PodScheduled      True
+```
+
+## Readiness
+
+order 서비스가 시작될때 readiness 를 만족할때까지 Ready 상태가 되지 않는것을 확인가능
+- 시작 직후
+```
+NAME                           READY   STATUS    RESTARTS   AGE
+pod/order-8466dc99f5-q4c5d     0/1     Running   0          4s
+```
+
+- healthy 체크가 정상적으로 이루어진 후
+```
+NAME                           READY   STATUS    RESTARTS   AGE
+pod/order-8466dc99f5-q4c5d     1/1     Running   0          84s
 ```
 
 ## 폴리글랏 퍼시스턴스
