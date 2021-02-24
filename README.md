@@ -675,20 +675,51 @@ Shortest transaction:           0.00
 ```
 # deployment.yaml 의 readiness probe 의 설정:
 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: menu
+  labels:
+    app: menu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: menu
+  template:
+    metadata:
+      labels:
+        app: menu
+    spec:
+      containers:
+        - name: t05-menu
+          image: 496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/t05-menu:v1
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
 
 kubectl apply -f kubernetes/deployment.yaml
 ```
 
 - 동일한 시나리오로 재배포 한 후 Availability 확인:
 ```
-Transactions:		        3078 hits
-Availability:		       100 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
+Lifting the server siege...
+Transactions:                  18697 hits
+Availability:                 100.00 %
+Elapsed time:                 119.04 secs
+Data transferred:               3.24 MB
+Response time:                  0.38 secs
+Transaction rate:             157.06 trans/sec
+Throughput:                     0.03 MB/sec
+Concurrency:                   60.47
+Successful transactions:       18697
 
 ```
 
