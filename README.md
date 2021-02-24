@@ -388,6 +388,27 @@ Conditions:
 ## Readiness
 
 order 서비스가 시작될때 readiness 를 만족할때까지 Ready 상태가 되지 않는것을 확인가능
+
+- deployment.yaml 파일 일부
+```
+        livenessProbe:
+          httpGet:
+            path: '/actuator/health'
+            port: 8080
+          initialDelaySeconds: 120
+          timeoutSeconds: 2
+          periodSeconds: 5
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: '/actuator/health'    
+            port: 8080   
+          initialDelaySeconds: 10
+          timeoutSeconds: 2
+          periodSeconds: 5
+          failureThreshold: 5   
+```
+
 - 시작 직후
 ```
 NAME                           READY   STATUS    RESTARTS   AGE
