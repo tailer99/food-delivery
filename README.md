@@ -631,35 +631,43 @@ deployment.apps/delivery   2/2     2            2           15m
 
 - seige 로 배포작업 직전에 워크로드를 모니터링 함.
 ```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
+siege -c20 -t120S -v --content-type "application/json" 'http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus POST {"menuNm":"Coffee"}'
 
-** SIEGE 4.0.5
-** Preparing 100 concurrent users for battle.
+** SIEGE 4.0.2
+** Preparing 20 concurrent users for battle.
 The server is now under siege...
-
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-:
-
+(...)
+HTTP/1.1 500     0.01 secs:     193 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
+HTTP/1.1 500     0.01 secs:     193 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
+HTTP/1.1 500     0.01 secs:     193 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
+HTTP/1.1 201     0.97 secs:     172 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
+HTTP/1.1 201     1.04 secs:     172 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
+HTTP/1.1 201     1.12 secs:     174 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
+(...)
 ```
 
 - 새버전으로의 배포 시작
 ```
-kubectl set image ...
+kubectl set image deployment/menu t05-menu=496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/t05-menu:v2
 ```
 
 - seige 의 화면으로 넘어가서 Availability 가 100% 미만으로 떨어졌는지 확인
 ```
-Transactions:		        3078 hits
-Availability:		       70.45 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
+siege aborted due to excessive socket failure; you
+can change the failure threshold in $HOME/.siegerc
+
+Transactions:                    846 hits
+Availability:                  44.64 %
+Elapsed time:                  38.82 secs
+Data transferred:               0.38 MB
+Response time:                  1.92 secs
+Transaction rate:              21.79 trans/sec
+Throughput:                     0.01 MB/sec
+Concurrency:                   41.94
+Successful transactions:         846
+Failed transactions:            1049
+Longest transaction:           28.02
+Shortest transaction:           0.00
 
 ```
 배포기간중 Availability 가 평소 100%에서 70% 대로 떨어지는 것을 확인. 원인은 쿠버네티스가 성급하게 새로 올려진 서비스를 READY 상태로 인식하여 서비스 유입을 진행한 것이기 때문. 이를 막기위해 Readiness Probe 를 설정함:
@@ -685,4 +693,3 @@ Concurrency:		       96.02
 ```
 
 배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
-
