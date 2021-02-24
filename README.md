@@ -726,3 +726,8 @@ Successful transactions:       18697
 ```
 
 배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
+
+## AWS 모니터링
+
+AWS CloudWatch 서비스를 통한 모니터링
+![aws_moni](https://user-images.githubusercontent.com/452079/108947340-a2529500-76a3-11eb-88e1-c1486704035a.PNG)
