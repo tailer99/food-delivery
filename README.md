@@ -517,7 +517,8 @@ transfer-encoding: chunked
 
 배달 시스템은 주문/메뉴와 완전히 분리되어 있으며, 이벤트 수신에 따라 처리되기 때문에, 배달시스팀이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다.
 
-- 서킷 브레이킹은 istio를 통해서 구현함
+- 서킷 브레이킹은 istio를 통해서 구현함.
+
 ```
 # cb yaml 파일
 
@@ -540,6 +541,25 @@ spec:
       maxEjectionPercent: 100
 
 ```
+
+- 타임아웃 threshold는 3초로 설정함
+```
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: vs-order-network-rule
+  namespace: default
+spec:
+  hosts:
+  - order
+  http:
+  - route:
+    - destination:
+        host: order
+    timeout: 3s
+```
+
+- 3초가 넘는 요청건은 timeout이 발생하는 것을 확인
 
 ![cb](https://user-images.githubusercontent.com/452079/108947949-dc706680-76a4-11eb-9cd1-0deac2e12d33.png)
 
