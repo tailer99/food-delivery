@@ -508,7 +508,7 @@ transfer-encoding: chunked
 - 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
 
 
-## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
+## 비동기식 호출 / 시간적 디커플링 / CB / 장애격리 / 최종 (Eventual) 일관성 테스트
 
 주문이 이루어진 후에 배달시스템으로 알려주는 행위는 동기식이 아니라 비동기식으로 처리하며, 배달 시스템의 처리를 위하여 주문이 블로킹되지 않도록 처리한다.
 
@@ -517,6 +517,31 @@ transfer-encoding: chunked
 
 배달 시스템은 주문/메뉴와 완전히 분리되어 있으며, 이벤트 수신에 따라 처리되기 때문에, 배달시스팀이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다.
 
+- 서킷 브레이킹은 istio를 통해서 구현함
+```
+# cb yaml 파일
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: dr-delivery
+  namespace: default
+spec:
+  host: delivery
+  trafficPolicy:
+    connectionPool:
+      http:
+        http1MaxPendingRequests: 30
+        maxRequestsPerConnection: 100
+    outlierDetection:
+      interval: 5s
+      consecutive5xxErrors: 1
+      baseEjectionTime: 5m
+      maxEjectionPercent: 100
+
+```
+
+![cb](https://user-images.githubusercontent.com/452079/108947949-dc706680-76a4-11eb-9cd1-0deac2e12d33.png)
 
 # 운영
 
