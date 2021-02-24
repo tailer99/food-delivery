@@ -704,7 +704,9 @@ spec:
             timeoutSeconds: 2
             periodSeconds: 5
             failureThreshold: 10
-
+```
+```
+yaml 파일을 통한 생성
 kubectl apply -f kubernetes/deployment.yaml
 ```
 
