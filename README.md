@@ -1,6 +1,6 @@
 # 예제 - 음식배달
 
-5팀 FINAL ASSESSMENT
+표영택 FINAL ASSESSMENT
 
 # 서비스 시나리오
 
