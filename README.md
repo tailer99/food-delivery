@@ -28,7 +28,7 @@
 # 분석/설계
 
 ## Event Storming 결과
-![이미지](https://user-images.githubusercontent.com/452079/108806757-eda66e00-75e5-11eb-920f-6dc60e76d44a.PNG)
+![event_storming](https://user-images.githubusercontent.com/452079/109100739-c9bf6580-7768-11eb-961e-243e2c7e83f9.PNG)
 
 ## 헥사고날 아키텍처 다이어그램 도출
 ![hexa](https://user-images.githubusercontent.com/452079/108806765-f39c4f00-75e5-11eb-8eb8-caae37dedf31.PNG)
