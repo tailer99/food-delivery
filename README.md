@@ -32,7 +32,7 @@
 ![Screen Shot 2021-02-24 at 10 25 09 PM](https://user-images.githubusercontent.com/69959639/109115292-32ffa280-7782-11eb-96a6-64e5f86d20aa.png)
 
 ## 헥사고날 아키텍처 다이어그램 도출
-<img width="985" alt="Screen Shot 2021-02-25 at 4 08 23 PM" src="https://user-images.githubusercontent.com/69959639/109116394-c84f6680-7783-11eb-9df3-8fb1e0b2e8e7.png">
+<img width="970" alt="Screen Shot 2021-02-25 at 4 39 58 PM" src="https://user-images.githubusercontent.com/69959639/109119534-2b42fc80-7788-11eb-89ed-16369357d98a.png">
 
 ### 비기능 요구사항에 대한 검증
 
