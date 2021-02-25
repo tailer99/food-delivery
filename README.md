@@ -28,10 +28,10 @@
 # 분석/설계
 
 ## Event Storming 결과
-![event_storming](https://user-images.githubusercontent.com/452079/109100739-c9bf6580-7768-11eb-961e-243e2c7e83f9.PNG)
+![Screen Shot 2021-02-24 at 10 25 09 PM](https://user-images.githubusercontent.com/69959639/109115292-32ffa280-7782-11eb-96a6-64e5f86d20aa.png)
 
 ## 헥사고날 아키텍처 다이어그램 도출
-![hexa](https://user-images.githubusercontent.com/452079/108806765-f39c4f00-75e5-11eb-8eb8-caae37dedf31.PNG)
+<img width="985" alt="Screen Shot 2021-02-25 at 4 08 23 PM" src="https://user-images.githubusercontent.com/69959639/109116394-c84f6680-7783-11eb-9df3-8fb1e0b2e8e7.png">
 
 ### 비기능 요구사항에 대한 검증
 
