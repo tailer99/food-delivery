@@ -438,17 +438,17 @@ kubectl apply -f /home/project/personal/porder/kubernetes/service.yaml
 
 ## Persistence Volume / Persistence Volume Claim
 ```
-root@labs--1203739448:/home/project/baedal/myeats/order# kubectl exec -it menu-68b9ffcc8-ndrgg -- /bin/sh
+root@labs--948649774:/home/project# kubectl exec -it pay-bb646f86-jb6sr  -- /bin/sh
 / # df -k
 Filesystem           1K-blocks      Used Available Use% Mounted on
-overlay               83873772   5671164  78202608   7% /
+overlay               83873772   4327040  79546732   5% /
 tmpfs                    65536         0     65536   0% /dev
 tmpfs                  1988932         0   1988932   0% /sys/fs/cgroup
-/dev/nvme0n1p1        83873772   5671164  78202608   7% /dev/termination-log
 127.0.0.1:/          9007199254739968         0 9007199254739968   0% /mnt/aws
-/dev/nvme0n1p1        83873772   5671164  78202608   7% /etc/resolv.conf
-/dev/nvme0n1p1        83873772   5671164  78202608   7% /etc/hostname
-/dev/nvme0n1p1        83873772   5671164  78202608   7% /etc/hosts
+/dev/nvme0n1p1        83873772   4327040  79546732   5% /dev/termination-log
+/dev/nvme0n1p1        83873772   4327040  79546732   5% /etc/resolv.conf
+/dev/nvme0n1p1        83873772   4327040  79546732   5% /etc/hostname
+/dev/nvme0n1p1        83873772   4327040  79546732   5% /etc/hosts
 shm                      65536         0     65536   0% /dev/shm
 tmpfs                  1988932        12   1988920   0% /run/secrets/kubernetes.io/serviceaccount
 tmpfs                  1988932         0   1988932   0% /proc/acpi
@@ -458,20 +458,6 @@ tmpfs                    65536         0     65536   0% /proc/latency_stats
 tmpfs                    65536         0     65536   0% /proc/timer_list
 tmpfs                    65536         0     65536   0% /proc/sched_debug
 tmpfs                  1988932         0   1988932   0% /sys/firmware
-/ # cd /mnt/aws
-/mnt/aws # ls
-out1.txt  out2.txt
-/mnt/aws # cat out1.txt
-Tue Feb 23 00:43:06 UTC 2021
-Tue Feb 23 00:43:11 UTC 2021
-Tue Feb 23 00:43:16 UTC 2021
-Tue Feb 23 00:43:21 UTC 2021
-Tue Feb 23 00:43:26 UTC 2021
-Tue Feb 23 00:43:31 UTC 2021
-Tue Feb 23 00:43:36 UTC 2021
-Tue Feb 23 00:43:41 UTC 2021
-Tue Feb 23 00:43:46 UTC 2021
-(...)
 ```
 
 ### 오토스케일 아웃
@@ -528,18 +514,6 @@ deployment.apps/delivery   2/2     2            2           15m
 - seige 로 배포작업 직전에 워크로드를 모니터링 함.
 ```
 siege -c20 -t120S -v --content-type "application/json" 'http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus POST {"menuNm":"Coffee"}'
-
-** SIEGE 4.0.2
-** Preparing 20 concurrent users for battle.
-The server is now under siege...
-(...)
-HTTP/1.1 500     0.01 secs:     193 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
-HTTP/1.1 500     0.01 secs:     193 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
-HTTP/1.1 500     0.01 secs:     193 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
-HTTP/1.1 201     0.97 secs:     172 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
-HTTP/1.1 201     1.04 secs:     172 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
-HTTP/1.1 201     1.12 secs:     174 bytes ==> POST http://a2aaaa88c46c04cb2b53ae76248d9d4a-1050609880.ap-northeast-2.elb.amazonaws.com:8080/menus
-(...)
 ```
 
 - 새버전으로의 배포 시작
@@ -571,28 +545,12 @@ Shortest transaction:           0.00
 
 ```
 # deployment.yaml 의 readiness probe 의 설정:
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: menu
-  labels:
-    app: menu
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: menu
-  template:
-    metadata:
-      labels:
-        app: menu
-    spec:
+ 
       containers:
-        - name: t05-menu
-          image: 496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/t05-menu:v1
+        - name: delivery
+          image: 496278789073.dkr.ecr.eu-central-1.amazonaws.com/skcc20-delivery:v1
           ports:
-          - containerPort: 8080
+            - containerPort: 8080
           readinessProbe:
             httpGet:
               path: '/actuator/health'
@@ -601,6 +559,14 @@ spec:
             timeoutSeconds: 2
             periodSeconds: 5
             failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5
 ```
 ```
 yaml 파일을 통한 생성
