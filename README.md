@@ -54,80 +54,29 @@
 - Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
 
 - 적용 후 REST API 의 테스트
-```
-# menu 서비스의 메뉴등록처리
-http http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/menus menuNm=Gimbab
-http http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/menus menuNm=Juice
-```
-```
-# menu 목록 확인
-http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/menus
 
-{
-  "_embedded" : {
-    "menus" : [ {
-      "menuNm" : "Gimbab",
-      "_links" : {
-        "self" : {
-          "href" : "http://menu:8080/menus/1"
-        },
-        "menu" : {
-          "href" : "http://menu:8080/menus/1"
-        }
-      }
-    }, {
-      "menuNm" : "Juice",
-      "_links" : {
-        "self" : {
-          "href" : "http://menu:8080/menus/2"
-        },
-        "menu" : {
-          "href" : "http://menu:8080/menus/2"
-        }
-      }
-    } ]
-  },
-  "_links" : {
-    "self" : {
-      "href" : "http://menu:8080/menus{?page,size,sort}",
-      "templated" : true
-    },
-    "profile" : {
-      "href" : "http://menu:8080/profile/menus"
-    }
-  },
-  "page" : {
-    "size" : 20,
-    "totalElements" : 2,
-    "totalPages" : 1,
-    "number" : 0
-  }
-}
-```
 
 ```
 # order 서비스의 주문처리
-http http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders menuId=1 menuNm=Gimbab qty=1
-http http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders menuId=2 menuNm=Juice qty=1
+http POST http://a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com:8080/orders menuId=1 qty=1
+http POST http://a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com:8080/orders menuId=2 qty=2
 
 # delivery 서비스의 배달처리
-http PATCH http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/deliveries/2 status=complete
+http PATCH http://a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com:8080/deliveries/1 status=delivered
 
 # order 서비스의 취소처리
-http PATCH http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders/1 status=cancel
+http PATCH http://a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com:8080/orders/2 status=orderCancelled
 
 # 주문 및 배달상태 확인
-http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders
-http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/deliveries
+http://a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com:8080/orders
+http://a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com:8080/deliveries
 
 {
   "_embedded" : {
     "orders" : [ {
       "menuId" : 1,
-      "menuNm" : "Juice",
       "qty" : 1,
-      "status" : "cancel",
-      "deliveryStatus" : "cancelled",
+      "status" : "Request Delivery",
       "deliveryId" : 1,
       "_links" : {
         "self" : {
@@ -139,10 +88,8 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
       }
     }, {
       "menuId" : 2,
-      "menuNm" : "Gimbab",
       "qty" : 2,
-      "status" : "ordered",
-      "deliveryStatus" : "complete",
+      "status" : "orderCancelled",
       "deliveryId" : 2,
       "_links" : {
         "self" : {
@@ -152,30 +99,26 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
           "href" : "http://order:8080/orders/2"
         }
       }
-    } ]
-  },
-  "_links" : {
-    "self" : {
-      "href" : "http://order:8080/orders{?page,size,sort}",
-      "templated" : true
-    },
-    "profile" : {
-      "href" : "http://order:8080/profile/orders"
-    }
-  },
-  "page" : {
-    "size" : 20,
-    "totalElements" : 2,
-    "totalPages" : 1,
-    "number" : 0
-  }
-}
-
-{
+    }, {
+      "menuId" : 3,
+      "qty" : 3,
+      "status" : "Request Delivery",
+      "deliveryId" : 3,
+      "_links" : {
+        "self" : {
+          "href" : "http://order:8080/orders/3"
+        },
+        "order" : {
+          "href" : "http://order:8080/orders/3"
+        }
+      }
+    }, {
+    
+    {
   "_embedded" : {
     "deliveries" : [ {
       "orderId" : 1,
-      "status" : "cancelled",
+      "status" : "delivered",
       "_links" : {
         "self" : {
           "href" : "http://delivery:8080/deliveries/1"
@@ -186,7 +129,7 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
       }
     }, {
       "orderId" : 2,
-      "status" : "complete",
+      "status" : "Request Delivery",
       "_links" : {
         "self" : {
           "href" : "http://delivery:8080/deliveries/2"
@@ -195,24 +138,9 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
           "href" : "http://delivery:8080/deliveries/2"
         }
       }
-    } ]
-  },
-  "_links" : {
-    "self" : {
-      "href" : "http://delivery:8080/deliveries{?page,size,sort}",
-      "templated" : true
-    },
-    "profile" : {
-      "href" : "http://delivery:8080/profile/deliveries"
-    }
-  },
-  "page" : {
-    "size" : 20,
-    "totalElements" : 2,
-    "totalPages" : 1,
-    "number" : 0
-  }
-}
+    }, {
+    
+    
 ```
 
 ## API-Gateway
@@ -237,38 +165,50 @@ spring:
           predicates:
             - Path= /mypages/**
         - id: menu
-          uri: http://menu:8080
+          uri: http://pay:8080
           predicates:
-            - Path=/menus/** 
+            - Path=/pays/** 
 ```
 
 외부에서 접근을 위하여 Gateway의 Service는 LoadBalancer Type으로 생성했다.
 ```
-kubectl expose deploy gateway  --type=LoadBalancer --port=8080
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: gateway
+  type: LoadBalancer
+  
 ```
 ```
 NAME                 TYPE           CLUSTER-IP       EXTERNAL-IP                                                                  PORT(S)          AGE
-service/delivery     ClusterIP      10.100.54.61     <none>                                                                       8080/TCP         43m
-service/gateway      LoadBalancer   10.100.203.198   a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com   8080:31550/TCP   43m
-service/kubernetes   ClusterIP      10.100.0.1       <none>                                                                       443/TCP          6h18m
+service/delivery     ClusterIP      10.100.54.61     <none>                                                                       8080/TCP         50m
+service/gateway      LoadBalancer   10.100.203.198   a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com   8080:31550/TCP   49m
+service/kubernetes   ClusterIP      10.100.0.1       <none>                                                                       443/TCP          6h25m
 ```
 
 ## CQRS / Meterialized View
 mypage를 구현하여 order, menu, delivery 서비스의 데이터를 DB Join없이 조회할 수 있다.
 ```
 # mypage 확인
-http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/mypages
+http://a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com:8080/mypages
 
 {
   "_embedded" : {
     "mypages" : [ {
       "orderId" : 1,
       "menuId" : 1,
-      "menuNm" : "Juice",
       "deliveryId" : 1,
       "qty" : 1,
-      "status" : "cancel",
-      "deliveryStatus" : "cancelled",
+      "status" : "Request Delivery",
       "_links" : {
         "self" : {
           "href" : "http://mypage:8080/mypages/1"
@@ -280,11 +220,9 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
     }, {
       "orderId" : 2,
       "menuId" : 2,
-      "menuNm" : "Gimbab",
       "deliveryId" : 2,
       "qty" : 2,
-      "status" : "ordered",
-      "deliveryStatus" : "complete",
+      "status" : "Request Delivery",
       "_links" : {
         "self" : {
           "href" : "http://mypage:8080/mypages/2"
@@ -293,20 +231,7 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
           "href" : "http://mypage:8080/mypages/2"
         }
       }
-    } ]
-  },
-  "_links" : {
-    "self" : {
-      "href" : "http://mypage:8080/mypages"
-    },
-    "profile" : {
-      "href" : "http://mypage:8080/profile/mypages"
-    },
-    "search" : {
-      "href" : "http://mypage:8080/mypages/search"
-    }
-  }
-}
+    }, {
 ```
 
 ## Liveness / Readiness 설정
@@ -357,44 +282,6 @@ spec:
 
 ```
 
-## Self-Healing (Liveness)
-
-생성된 order pod의 상세정보
-```
-Name:         delivery-f4b8b7f64-znjtz
-Namespace:    default
-Priority:     0
-Node:         ip-192-168-14-63.eu-central-1.compute.internal/192.168.14.63
-Start Time:   Thu, 25 Feb 2021 15:39:48 +0900
-Labels:       app=delivery
-              pod-template-hash=f4b8b7f64
-Annotations:  kubernetes.io/psp: eks.privileged
-Status:       Running
-IP:           192.168.17.178
-IPs:
-  IP:           192.168.17.178
-Controlled By:  ReplicaSet/delivery-f4b8b7f64
-Containers:
-  delivery:
-    Container ID:   docker://4ae418a192c77e3ae858d04f87f4c89074e73ceca95dec1936844811d16ef8cb
-    Image:          496278789073.dkr.ecr.eu-central-1.amazonaws.com/skcc20-delivery:v1
-    Image ID:       docker-pullable://496278789073.dkr.ecr.eu-central-1.amazonaws.com/skcc20-delivery@sha256:b1926fbf0133a62767f1975d395fe0d9fb2112792cd64377d9d2ea4812933cbc
-    Port:           8080/TCP
-    Host Port:      0/TCP
-    State:          Running
-      Started:      Thu, 25 Feb 2021 15:39:50 +0900
-    Ready:          True
-    Restart Count:  0
-    Limits:
-      cpu:  500m
-    Requests:
-      cpu:        200m
-    Liveness:     http-get http://:8080/actuator/health delay=120s timeout=2s period=5s #success=1 #failure=5
-    Readiness:    http-get http://:8080/actuator/health delay=10s timeout=2s period=5s #success=1 #failure=10
-    Environment:  <none>
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-ljz97 (ro)
-```
 
 ## Readiness
 
