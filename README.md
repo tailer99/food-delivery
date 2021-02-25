@@ -14,7 +14,8 @@
 1. 배달이 완료되면 고객은 주문을 취소할 수 없다.
 1. 고객이 주문취소를 하면 주문상태가 "주문취소"로 변경된다.
 1. 주문이 취소되면 배달도 취소된다.
-1. 고객이 주문상태를 중간중간 조회한다.
+2. 주문이 되면 결제를 완료해야 한다.
+3. 고객이 주문상태를 중간중간 조회한다.
 
 비기능적 요구사항
 1. 트랜잭션
@@ -246,9 +247,10 @@ spring:
 kubectl expose deploy gateway  --type=LoadBalancer --port=8080
 ```
 ```
-NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP                                 PORT(S)          AGE
-service/gateway      LoadBalancer   10.100.208.95   censored.ap-northeast-2.elb.amazonaws.com   8080:30302/TCP   2s
-service/kubernetes   ClusterIP      10.100.0.1      <none>                                      443/TCP          108m
+NAME                 TYPE           CLUSTER-IP       EXTERNAL-IP                                                                  PORT(S)          AGE
+service/delivery     ClusterIP      10.100.54.61     <none>                                                                       8080/TCP         43m
+service/gateway      LoadBalancer   10.100.203.198   a6ccd4a208aa14d8c8550700879170aa-1276543246.eu-central-1.elb.amazonaws.com   8080:31550/TCP   43m
+service/kubernetes   ClusterIP      10.100.0.1       <none>                                                                       443/TCP          6h18m
 ```
 
 ## CQRS / Meterialized View
@@ -308,29 +310,29 @@ http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.
 ```
 
 ## Liveness / Readiness 설정
-order 서비스 deployment.xml 에 Liveness, Readiness를 httpGet 방식으로 설정함
+delivery 서비스 deployment.xml 에 Liveness, Readiness를 httpGet 방식으로 설정함
 ```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order
+  name: delivery
   labels:
-    app: order
+    app: delivery
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order
+      app: delivery
   template:
     metadata:
       labels:
-        app: order
+        app: delivery
     spec:
       containers:
-        - name: order
-          image: 496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/team05-order:v1
+        - name: delivery
+          image: 496278789073.dkr.ecr.eu-central-1.amazonaws.com/skcc20-delivery:v1
           ports:
-          - containerPort: 8080
+            - containerPort: 8080
           readinessProbe:
             httpGet:
               path: '/actuator/health'
@@ -347,41 +349,51 @@ spec:
             timeoutSeconds: 2
             periodSeconds: 5
             failureThreshold: 5
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m     
 
 ```
 
 ## Self-Healing (Liveness)
 
-order pod를 강제종료처리시, liveness에 의해 자동으로 다른 pod가 생성되는 모습
-```
-kubectl delete pod order-cb5d6b495-knfrp
-```
-![image](https://user-images.githubusercontent.com/452079/108833009-974e2500-760f-11eb-99c2-0e4b127f245d.png)
-
 생성된 order pod의 상세정보
 ```
+Name:         delivery-f4b8b7f64-znjtz
+Namespace:    default
+Priority:     0
+Node:         ip-192-168-14-63.eu-central-1.compute.internal/192.168.14.63
+Start Time:   Thu, 25 Feb 2021 15:39:48 +0900
+Labels:       app=delivery
+              pod-template-hash=f4b8b7f64
+Annotations:  kubernetes.io/psp: eks.privileged
+Status:       Running
+IP:           192.168.17.178
+IPs:
+  IP:           192.168.17.178
+Controlled By:  ReplicaSet/delivery-f4b8b7f64
 Containers:
-  order:
-    Container ID:   docker://0cafff76bed772615cfe8b74845e50f3979fec7fe5da5a0587b7ae2b4fe79b4e
-    Image:          496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/team05-order:v1
-    Image ID:       docker-pullable://496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/team05-order@sha256:8b09186218c6b2517e8829cdf48decfd105d10831c2870677b29f50adfcbc61a
+  delivery:
+    Container ID:   docker://4ae418a192c77e3ae858d04f87f4c89074e73ceca95dec1936844811d16ef8cb
+    Image:          496278789073.dkr.ecr.eu-central-1.amazonaws.com/skcc20-delivery:v1
+    Image ID:       docker-pullable://496278789073.dkr.ecr.eu-central-1.amazonaws.com/skcc20-delivery@sha256:b1926fbf0133a62767f1975d395fe0d9fb2112792cd64377d9d2ea4812933cbc
     Port:           8080/TCP
     Host Port:      0/TCP
     State:          Running
-      Started:      Tue, 23 Feb 2021 19:38:50 +0900
+      Started:      Thu, 25 Feb 2021 15:39:50 +0900
     Ready:          True
     Restart Count:  0
-    Liveness:       http-get http://:8080/actuator/health delay=120s timeout=2s period=5s #success=1 #failure=5
-    Readiness:      http-get http://:8080/actuator/health delay=10s timeout=2s period=5s #success=1 #failure=10
-    Environment:    <none>
+    Limits:
+      cpu:  500m
+    Requests:
+      cpu:        200m
+    Liveness:     http-get http://:8080/actuator/health delay=120s timeout=2s period=5s #success=1 #failure=5
+    Readiness:    http-get http://:8080/actuator/health delay=10s timeout=2s period=5s #success=1 #failure=10
+    Environment:  <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-c55nd (ro)
-Conditions:
-  Type              Status
-  Initialized       True 
-  Ready             True 
-  ContainersReady   True 
-  PodScheduled      True
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-ljz97 (ro)
 ```
 
 ## Readiness
@@ -517,52 +529,6 @@ transfer-encoding: chunked
 
 배달 시스템은 주문/메뉴와 완전히 분리되어 있으며, 이벤트 수신에 따라 처리되기 때문에, 배달시스팀이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다.
 
-- 서킷 브레이킹은 istio를 통해서 구현함.
-
-```
-# cb yaml 파일
-
-apiVersion: networking.istio.io/v1alpha3
-kind: DestinationRule
-metadata:
-  name: dr-delivery
-  namespace: default
-spec:
-  host: delivery
-  trafficPolicy:
-    connectionPool:
-      http:
-        http1MaxPendingRequests: 30
-        maxRequestsPerConnection: 100
-    outlierDetection:
-      interval: 5s
-      consecutive5xxErrors: 1
-      baseEjectionTime: 5m
-      maxEjectionPercent: 100
-
-```
-
-- 타임아웃 threshold는 3초로 설정함
-```
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: vs-order-network-rule
-  namespace: default
-spec:
-  hosts:
-  - order
-  http:
-  - route:
-    - destination:
-        host: order
-    timeout: 3s
-```
-
-- 3초가 넘는 요청건은 timeout이 발생하는 것을 확인
-
-![cb](https://user-images.githubusercontent.com/452079/108947949-dc706680-76a4-11eb-9cd1-0deac2e12d33.png)
-
 # 운영
 
 ## 디플로이, CI/CD 설정
@@ -570,19 +536,17 @@ spec:
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 AWS를 사용하였으며, kubectl을 통해 수작업으로 배포하였다.
 
 ```
-# AWS 컨테이너 레지스트리에 이미지 리파지토리 생성
-aws ecr create-repository --repository-name order    --image-scanning-configuration scanOnPush=true --region ap-northeast-2
 
 # maven 패키 생성 & docker 이미지 생성 & push
 mvn package
-docker build -t 631417180704.dkr.ecr.ap-northeast-2.amazonaws.com/order:v1 .
-docker push 631417180704.dkr.ecr.ap-northeast-2.amazonaws.com/order:v1
+docker build -t 496278789073.dkr.ecr.eu-central-1.amazonaws.com/skcc20-order:v2 .
+docker push 496278789073.dkr.ecr.eu-central-1.amazonaws.com/skcc20-order:v2
 
 # docker 이미지로 Deployment 생성
-kubectl create deploy order    --image=631417180704.dkr.ecr.ap-northeast-2.amazonaws.com/order:v1
+kubectl apply -f /home/project/personal/porder/kubernetes/deployment.yml
 
 # expose
-kubectl expose deploy order    --type=ClusterIP --port=8080
+kubectl apply -f /home/project/personal/porder/kubernetes/service.yaml
 ```
 
 ## Persistence Volume / Persistence Volume Claim
@@ -624,13 +588,13 @@ Tue Feb 23 00:43:46 UTC 2021
 ```
 
 ### 오토스케일 아웃
-앞서 CB 는 시스템을 안정되게 운영할 수 있게 해줬지만 사용자의 요청을 100% 받아들여주지 못했기 때문에 이에 대한 보완책으로 자동화된 확장 기능을 적용하고자 한다. 
+사용자 요청이 많아질 때 자동화된 확장 기능을 적용하고자 한다. 
 
-- 결제서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 15프로를 넘어서면 replica 를 10개까지 늘려준다:
+- 배달서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 15프로를 넘어서면 replica 를 10개까지 늘려준다:
 ```
 kubectl autoscale deploy delivery --min=1 --max=10 --cpu-percent=15
 ```
-- CB 에서 했던 방식대로 워크로드를 2분 동안 걸어준다.
+- 워크로드를 2분 동안 걸어준다.
 ```
 siege -c100 -t120S -r10 --content-type "application/json" 'http://a497f79f966814b10ac57259e6fce4ea-1896896990.ap-northeast-2.elb.amazonaws.com:8080/orders POST {"menuId":"1"}'
 ```
@@ -693,7 +657,7 @@ HTTP/1.1 201     1.12 secs:     174 bytes ==> POST http://a2aaaa88c46c04cb2b53ae
 
 - 새버전으로의 배포 시작
 ```
-kubectl set image deployment/menu t05-menu=496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/t05-menu:v2
+kubectl set image deployment/order order=496278789073.dkr.ecr.eu-central-1.amazonaws.com/order:v2
 ```
 
 - seige 의 화면으로 넘어가서 Availability 가 100% 미만으로 떨어졌는지 확인
@@ -715,6 +679,7 @@ Longest transaction:           28.02
 Shortest transaction:           0.00
 
 ```
+
 배포기간중 Availability 가 평소 100%에서 70% 대로 떨어지는 것을 확인. 원인은 쿠버네티스가 성급하게 새로 올려진 서비스를 READY 상태로 인식하여 서비스 유입을 진행한 것이기 때문. 이를 막기위해 Readiness Probe 를 설정함:
 
 ```
